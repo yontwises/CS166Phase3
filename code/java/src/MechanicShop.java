@@ -454,7 +454,7 @@ public class MechanicShop{
 		}while(true);
 
 		try {	
-			esql.executeUpdate("INSERT INTO Mechanic (id, fname, lname, experience) VALUES (" + id + ", \'" + fname + ", \'" + lname + ", \'" + experience + ");" );
+			esql.executeUpdate("INSERT INTO Mechanic (id, fname, lname, experience) VALUES (" + id + ", \'" + fname + "\', \'" + lname + "\', \'" + experience + "\');" );
 		}catch (Exception e) {
 			System.err.println (e.getMessage());		
 		}
