@@ -396,8 +396,73 @@ public class MechanicShop{
 	}
 	
 	
-	public static void AddMechanic(MechanicShop esql){//2 Ivan 
+	public static void AddMechanic(MechanicShop esql){//2
+		int id;
+		String fname;
+		String lname;
+		int experience;
 		
+		do {
+			System.out.print("Enter Mechanic ID Number: ");
+			try {
+				id = Integer.parseInt(in.readLine());
+				break;
+			}
+			catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+		}while(true);
+	
+		do {
+			System.out.print("Enter Mechanic First Name: ");
+			try {
+				fname = in.readLine();
+				if(fname.length() <= 0 || fname.length() > 32) {
+				throw new RuntimeException("First Name cannot be NULL or over 32 characters");	
+				}
+	
+				break;
+			}
+			catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+		}while(true);	
+	
+		do {
+			System.out.print("Enter Mechanic Last Name: ");
+			try {
+				lname = in.readLine();
+				if(lname.length() <= 0 || lname.length() > 32) {
+				throw new RuntimeException("Last Name cannot be NULL or over 32 characters");	
+				}
+
+				break;
+			}
+			catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+		}while(true);	
+
+		do {
+			System.out.print("Enter Mechanic Experience: ");
+			try {
+				experience = Integer.parseInt(in.readLine());
+				break;
+			}
+			catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+		}while(true);
+
+		try {	
+			esql.executeUpdate("INSERT INTO Mechanic (id, fname, lname, experience) VALUES (" + id + ", \'" + fname + "\', \'" + lname + "\', \'" + experience + "\');" );
+		}catch (Exception e) {
+			System.err.println (e.getMessage());		
+		}
 	}
 	
 	public static void AddCar(MechanicShop esql){//3 
@@ -568,20 +633,100 @@ public class MechanicShop{
 		}
 	}
 	
-	public static void CloseServiceRequest(MechanicShop esql) throws Exception{//5 Ivan 
+	public static void CloseServiceRequest(MechanicShop esql) throws Exception{//5
+		int wid;
+		int rid;
+		int mid;
+		int date;
+		String comment;
+		int bill;
+		int temp;
+		int newWID;
+
+		do {
+			System.out.print("Enter a service Request Number: ");
+			try {
+				rid = Integer.parseInt(in.readLine());	
+				temp = esql.executeQuery("SELECT * FROM Service_Request WHERE Service_Request.rid = " + rid + ";");
+				if (temp == 0) {
+					System.out.println("Service request number does not exist");
+					continue;
+				}		
+				break;
+			}catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+			
 		
+		}while(true);
+
+		do {
+			System.out.print("Enter Mechanic ID: ");
+			try{
+				mid = Integer.parseInt(in.readLine());
+				temp = esql.executeQuery("SELECT * FROM Mechanic WHERE Mechanic.id = " + mid + ";");
+				if (temp == 0) {
+					System.out.println("Mechanic ID does not exist.");
+					continue;
+				}
+				break;
+			}catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+	
+		}while(true);	
+		
+		do {
+			System.out.print("Enter comments about repair: ");
+			try {
+				comment = in.readLine();
+				break;
+			}catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}			
+		}while(true);
+
+		do {
+			System.out.print("Enter bill amount to the customer: ");
+			try {
+				bill = Integer.parseInt(in.readLine());
+				break;
+			}catch (Exception e) {
+				System.out.println("Your input is Invalid!");
+				continue;
+			}
+		}while(true);
+			
+		newWID = esql.executeQueryAndReturnResult("SELECT wid FROM Closed_Request").size() + 1;
+		
+		esql.executeUpdate("INSERT INTO Closed_Request(wid, rid, mid, date, comment, bill) VALUES(" + newWID + ", " + rid + ", " + mid + ", CURRENT_DATE, \'" + comment + "\', " + bill +  ");"); 
 	}
 	
-	public static void ListCustomersWithBillLessThan100(MechanicShop esql){//6 Ivan 
-		
+	public static void ListCustomersWithBillLessThan100(MechanicShop esql){//6
+		try {
+			esql.executeQueryAndPrintResult("SELECT Customer.fname, Customer.lname, Closed_Request.bill FROM Customer, Closed_Request, Service_Request WHERE Closed_Request.bill < 100 AND Closed_Request.rid = Service_Request.rid AND Service_Request.customer_id = Customer.id;" );
+		}catch (Exception e) {
+			System.err.println(e.getMessage());
+		}		
 	}
 	
-	public static void ListCustomersWithMoreThan20Cars(MechanicShop esql){//7 Ivan 
-		
+	public static void ListCustomersWithMoreThan20Cars(MechanicShop esql){//7
+		try {
+			esql.executeQueryAndPrintResult("SELECT total.fname, total.lname, total.numCars FROM (SELECT Owns.customer_id, Customer.fname, Customer.lname, COUNT(*) numCars FROM Owns, Customer WHERE Customer.id = Owns.customer_id GROUP BY Owns.customer_id,Customer.fname,Customer.lname) AS total WHERE numCars > 20;");
+		}catch(Exception e) {
+			System.err.println(e.getMessage());
+		}	
 	}
 	
-	public static void ListCarsBefore1995With50000Milles(MechanicShop esql){//8 Ivan 
-		
+	public static void ListCarsBefore1995With50000Milles(MechanicShop esql){//8
+		try {
+			esql.executeQueryAndPrintResult("SELECT Car.vin, Car.make, Car.model, Car.year, Service_Request.odometer FROM Car, Service_Request WHERE Car.vin = Service_Request.car_vin AND Car.year < 1995 AND Service_Request.odometer < 50000;");
+		}catch(Exception e) {
+			System.err.println(e.getMessage());
+		}	
 	}
 	
 	public static void ListKCarsWithTheMostServices(MechanicShop esql){//9
